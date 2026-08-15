@@ -1,0 +1,78 @@
+# Quant Research Pipeline Configuration
+# This file contains all configurable parameters for the research pipeline
+
+# Data settings
+data:
+  price_file: "data/prices.csv"
+  start_date: "2010-01-01"
+  end_date: "2023-12-31"
+  fill_method: "ffill"  # ffill, bfill, interpolate
+  min_history: 252  # Minimum days of history required
+
+# Period definitions for IS/OOS split
+periods:
+  in_sample_end: "2018-12-31"
+  out_of_sample_start: "2019-01-01"
+
+# Signal configuration
+signal:
+  type: "momentum"  # momentum, mean_reversion, residual_momentum
+  lookback: 252  # Lookback period in days
+  skip: 21  # Skip period to avoid short-term reversal
+  method: "percentile"  # For cross-sectional: percentile, zscore, rank
+  standardization: "zscore"  # zscore, rank, winsorize
+
+# Portfolio construction
+portfolio:
+  method: "rank_zscore"  # rank_zscore, equal_weight, signal_proportional, optimization
+  max_weight: 0.10  # Maximum weight per asset
+  target_gross: 1.0  # Target gross exposure
+  rebalance_frequency: "M"  # D (daily), W (weekly), M (monthly)
+
+# Risk controls
+risk_controls:
+  volatility_target:
+    enabled: true
+    target_vol: 0.10  # 10% annualized volatility
+    vol_window: 63  # Rolling window for realized vol
+    max_leverage: 1.5
+    min_leverage: 0.0
+  
+  drawdown_control:
+    enabled: true
+    max_drawdown: 0.15  # Maximum drawdown before full exit
+    trigger_dd: 0.10  # Drawdown level to start reducing
+    reduction_speed: 1.0  # 1 = linear reduction
+  
+  position_limits:
+    max_long: 0.10
+    max_short: 0.05
+    max_gross: 1.5
+    max_net: 1.0
+
+# Transaction costs
+costs:
+  spread: 0.001  # 10 bps bid-ask spread
+  slippage: 0.0005  # 5 bps market impact
+  commission: 0.001  # 10 bps commission
+
+# Benchmark
+benchmark:
+  type: "equal_weight"  # equal_weight, market_cap, custom
+  column: null  # Column name for custom benchmark
+
+# Statistical testing
+testing:
+  significance_method: "newey_west"  # ols, newey_west, clustered
+  newey_west_lags: 5
+  ic_method: "rank"  # pearson, rank, kendall
+
+# Reporting
+reporting:
+  generate_plots: true
+  plot_style: "seaborn-v0_8"
+  save_results: true
+  output_dir: "reports/"
+
+# Reproducibility
+random_seed: 42
